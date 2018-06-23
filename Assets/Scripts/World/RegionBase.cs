@@ -412,10 +412,16 @@ namespace Game.World
             }
         }
 
-        /// <summary>
-        /// Removes finished or aborted jobs from the lists.
-        /// </summary>
-        private void CleanSubSceneJobLists()
+		private void OnDrawGizmosSelected() {
+			Gizmos.color = boundsColour;
+			var bounds = BoundingBox;
+			Gizmos.DrawWireCube(bounds.center, bounds.size);
+		}
+
+		/// <summary>
+		/// Removes finished or aborted jobs from the lists.
+		/// </summary>
+		private void CleanSubSceneJobLists()
         {
             foreach (var variant_group in SubSceneJobLists)
             {
