@@ -18,11 +18,15 @@ namespace Game.CameraControl
         public GradientFog GradientFogComponent { get; private set; }
         public PostProcessingBehaviour PostProcessingBehaviourComponent { get; private set; }
 
-        //########################################################################
+		public Gradient defaultGradient { get; private set; }
+		public float defaultStart { get; private set; }
+		public float defaultEnd { get; private set; }
 
-        // -- INITIALIZATION
+		//########################################################################
 
-        public void InitializeCameraController(GameController gameController)
+		// -- INITIALIZATION
+
+		public void InitializeCameraController(GameController gameController)
         {
             PoS_Camera = GetComponent<PoS_Camera>();
             EchoCameraEffect = GetComponent<EchoCameraEffect>();
@@ -30,8 +34,12 @@ namespace Game.CameraControl
             GPUIDisplayManager = GetComponentInChildren<GPUIDisplayManager>();
             GradientFogComponent = GetComponentInChildren<GradientFog>();
             PostProcessingBehaviourComponent = GetComponentInChildren<PostProcessingBehaviour>();
-            
-            PoS_Camera.Initialize(gameController);
+
+			defaultGradient = GradientFogComponent.gradient;
+			defaultStart = GradientFogComponent.startDistance;
+			defaultEnd = GradientFogComponent.endDistance;
+
+			PoS_Camera.Initialize(gameController);
             GPUIDisplayManager.Initialize(gameController);
         }
 

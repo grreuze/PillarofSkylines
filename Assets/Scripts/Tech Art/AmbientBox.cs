@@ -61,7 +61,7 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
     ColorOverlay overlay;
     float defaultStart, defaultEnd;
     private bool IsInitialized = false;
-	bool isInside = false;
+	int isInside = 0;
 
     //##################################################################
 
@@ -79,9 +79,9 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
         defaultColor = RenderSettings.ambientLight;
 
         fog = GameController.CameraController.GradientFogComponent;
-        defaultGradient = fog.gradient;
-        defaultStart = fog.startDistance;
-        defaultEnd = fog.endDistance;
+        defaultGradient = GameController.CameraController.defaultGradient;
+        defaultStart = GameController.CameraController.defaultStart;
+        defaultEnd = GameController.CameraController.defaultEnd;
 
         overlay = fog.GetComponent<ColorOverlay>();
 
@@ -119,39 +119,39 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
 
     public void OnPlayerEnter()
     {
-		isInside = true;
-
 		StopAllCoroutines();
+		isInside = 1;
 
-        if (editAmbient)
-        {
+		print("Enter " + name);
+
+        if (editAmbient) {
             StartCoroutine(FadeAmbient(color));
         }
 
-        if (editFog)
-        {
-            StartCoroutine(FadeFog(gradient, startDistance, endDistance));
+        if (editFog) {
+			StartCoroutine(FadeFog(gradient, startDistance, endDistance));
         }
 
-        if (postProcess)
-        {
-            postProcessStack.OverrideProfile(postProcess);
+        if (postProcess) {
+			postProcessStack.OverrideProfile(postProcess);
         }
 
-        if (editOverlay)
-            StartCoroutine(FadeOverlay(overlayColour, 1));
+		if (editOverlay) {
+			StartCoroutine(FadeOverlay(overlayColour, 1));
+		}
 
-        if (editAudio)
-        {
-            StartCoroutine(FadeAudio(1f, true));
+        if (editAudio) {
+			StartCoroutine(FadeAudio(1f, true));
         }
     }
 
     public void OnPlayerExit() {
-		isInside = false;
 		StopAllCoroutines();
+		isInside = 0;
 
-        if (editAmbient)
+		print("Exit " + name);
+
+		if (editAmbient)
         {
             StartCoroutine(FadeAmbient(defaultColor));
         }
@@ -176,7 +176,9 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
     }
 
 	void OnDestroy() {
-		if (isInside) {
+		if (isInside > 0) {
+			print("Destroy " + name);
+
 			if (editAmbient)
 				RenderSettings.ambientLight = defaultColor;
 
@@ -206,7 +208,7 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
 				atmoSource.PlayScheduled(Random.value);
 				atmoSource.volume = defaultVolume;
 			}
-
+			isInside = 0;
 		}
 
 	}
@@ -223,30 +225,32 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
     {
     }
 
-    private IEnumerator FadeAmbient(Color goal)
-    {
-        while (RenderSettings.ambientLight != goal)
+    private IEnumerator FadeAmbient(Color goal) {
+		isInside++;
+		while (RenderSettings.ambientLight != goal)
         {
             RenderSettings.ambientLight = Color.Lerp(RenderSettings.ambientLight, goal, Time.deltaTime * ambientFadeSpeed);
             yield return null;
-        }
-    }
+		}
+		isInside--;
+	}
     
-    private IEnumerator FadeOverlay(Color color, float goal)
-    {
-        overlay.enabled = true;
+    private IEnumerator FadeOverlay(Color color, float goal) {
+		isInside++;
+		overlay.enabled = true;
         overlay.color = color;
         while (Mathf.Abs(overlay.intensity - goal) > 0.001f)
         {
             overlay.intensity = Mathf.Lerp(overlay.intensity, goal, Time.deltaTime * overlayFadeSpeed);
             yield return null;
-        }
-    }
+		}
+		isInside--;
+	}
 
 
-    private IEnumerator FadeFog(Gradient goal, float startGoal, float endGoal)
-    {
-        GradientFog[] fogs = FindObjectsOfType<GradientFog>();
+    private IEnumerator FadeFog(Gradient goal, float startGoal, float endGoal) {
+		isInside++;
+		GradientFog[] fogs = FindObjectsOfType<GradientFog>();
         fog = fogs[0];
 
         foreach (GradientFog foggy in fogs)
@@ -279,12 +283,13 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
             foggy.gradient = goal;
             foggy.gradientLerp = 0;
             foggy.GenerateTexture();
-        }
-    }
+		}
+		isInside--;
+	}
 
-    private IEnumerator FadeAudio(float _targetVolume, bool _entering)
-    {
-        while (audioTimer <= audioFadeSpeed)
+    private IEnumerator FadeAudio(float _targetVolume, bool _entering) {
+		isInside++;
+		while (audioTimer <= audioFadeSpeed)
         {
             audioTimer += Time.deltaTime;
             currentVolume = fadeOutCurve.Evaluate(Mathf.Clamp01(audioTimer / audioFadeSpeed)) * defaultVolume;
@@ -307,5 +312,6 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
         }
 
         audioTimer = 0f;
+		isInside--;
     }
 }

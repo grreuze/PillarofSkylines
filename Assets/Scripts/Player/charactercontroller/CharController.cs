@@ -280,7 +280,7 @@ namespace Game.Player.CharacterController
                 inputInfo.jetpackButtonDown = Input.GetButtonDown("Jetpack");
                 inputInfo.jetpackButtonUp = Input.GetButtonUp("Jetpack");*/
 
-                inputInfo.rightStickButtonDown = Input.GetButtonDown("RightStickClick");
+                inputInfo.rightStickButtonDown = Input.GetButtonDown("RightStickClick") || Input.GetKey(KeyCode.G);
                 
                 if (inputInfo.echoButton)
                 {
