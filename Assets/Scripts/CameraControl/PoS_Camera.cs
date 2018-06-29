@@ -54,15 +54,16 @@ public class PoS_Camera : MonoBehaviour
 
     public bool smoothMovement = true;
     public float smoothDamp = .1f;
-    public float resetDamp = .3f;
+	public float resetDamp = .3f;
 
     [Header("Behaviour")]
     public bool followBehind;
     public float timeBeforeAutoReset = 5;
     public float autoResetDamp = 1;
     public float axisAlignDamp = 1f;
+	public float driftDamp = 1f;
 
-    public MinMax distanceBasedOnPitch = new MinMax(1, 12);
+	public MinMax distanceBasedOnPitch = new MinMax(1, 12);
     public AnimationCurve distanceFromRotation;
 
     public MinMax fovBasedOnPitch = new MinMax(60, 75);
@@ -201,8 +202,9 @@ public class PoS_Camera : MonoBehaviour
         photoPath += "/Photos/";
 
         filterCount = filters.Length;
+		defaultDamp = smoothDamp;
 
-        ResetGravity();
+		ResetGravity();
         PlaceBehindPlayerNoLerp();
     }
 
@@ -267,42 +269,82 @@ public class PoS_Camera : MonoBehaviour
     /// <param name="args"> Contient la position vers laquelle tp, et un bool pour savoir si on a changé de scène. </param>
     void OnTeleportPlayer(object sender, Game.Utilities.EventManager.TeleportPlayerEventArgs args)
     {
-        if (args.IsNewScene)
-        {
-            // on reset les paramètres par défaut de la caméra
-            currentDistance = distance;
-            ResetZoom();
-            state = eCameraState.Default;
-            resetType = eResetType.None;
+		if (args.IsNewScene) {
+			// on reset les paramètres par défaut de la caméra
+			currentDistance = distance;
+			ResetZoom();
+			state = eCameraState.Default;
+			resetType = eResetType.None;
 
-            nearPOI = false;
-            axisAligned = Vector3.zero;
-            enablePanoramaMode = true;
-            yaw = SignedAngle(targetSpace * worldForward, args.Rotation * worldForward, target.up);
-            pitch = defaultPitch;
-            camRotation = my.rotation = targetSpace * Quaternion.Euler(pitch, yaw, 0);
-        }
-        else
-        {
-            //my.position = args.Position - lastFrameOffset;
-            my.position += (args.Position - args.FromPosition);
-        }
+			nearPOI = false;
+			axisAligned = Vector3.zero;
+			enablePanoramaMode = true;
+			yaw = SignedAngle(targetSpace * worldForward, args.Rotation * worldForward, target.up);
+			pitch = defaultPitch;
+			camRotation = my.rotation = targetSpace * Quaternion.Euler(pitch, yaw, 0);
+			Teleport(args.Position, args.IsNewScene);
 
-        negDistance.z = -currentDistance;
-        Vector3 targetWithOffset = args.Position + my.right * offset.x + my.up * offset.y;
-        camPosition = my.rotation * negDistance + targetWithOffset;
-        lastFrameCamPos = camPosition;
+		} else if (args.Drifting) {
+			StartCoroutine(Drift(args.Position));
 
-        //PlaceBehindPlayerNoLerp();
+		} else {
+			//my.position = args.Position - lastFrameOffset;
+			my.position += (args.Position - args.FromPosition);
+			Teleport(args.Position, args.IsNewScene);
+		}
 
-        if (args.IsNewScene)
-        {
-            my.position = camPosition;
-        }
-
-        if (gameController.DuplicationCameraManager)
-            gameController.DuplicationCameraManager.UpdateDuplicationCameras();
     }
+
+	float defaultDamp;
+	IEnumerator Drift(Vector3 position) {
+		smoothDamp = driftDamp;
+
+		gamePaused = true;
+
+		yield return new WaitForSeconds(0.1f);
+
+		gamePaused = false;
+
+		Teleport(position, false);
+
+		// GARDER driftDamp 0.5 secondes puis graduellement revenir à defaultdamp peu importe
+
+		float driftTime = 0.5f;
+
+		for (float e = 0; e < driftTime; e += Time.deltaTime) {
+			if (Vector3.SqrMagnitude(camPosition - my.position) < 0.1f)
+				break;
+			yield return null;
+		}
+
+		for (float e = 0; e < driftTime; e += Time.deltaTime) {
+
+			smoothDamp = Mathf.Lerp(driftDamp, defaultDamp, e / driftTime);
+
+			if (Vector3.SqrMagnitude(camPosition - my.position) < 0.1f)
+				break;
+			yield return null;
+		}
+
+		smoothDamp = defaultDamp;
+	}
+
+	void Teleport(Vector3 position, bool isNewScene) {
+		negDistance.z = -currentDistance;
+		Vector3 targetWithOffset = position + my.right * offset.x + my.up * offset.y;
+		camPosition = my.rotation * negDistance + targetWithOffset;
+		lastFrameCamPos = camPosition;
+
+		//PlaceBehindPlayerNoLerp();
+
+		if (isNewScene) {
+			my.position = camPosition;
+		}
+
+		if (gameController.DuplicationCameraManager)
+			gameController.DuplicationCameraManager.UpdateDuplicationCameras();
+	}
+
 
     void OnGamePaused(object sender, Game.Utilities.EventManager.GamePausedEventArgs args)
     {

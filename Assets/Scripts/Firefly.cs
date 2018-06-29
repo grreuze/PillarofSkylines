@@ -99,11 +99,11 @@ namespace Game
             {
                 Instantiate(Feedback, Transform.position, Transform.rotation).Play();
                 SoundifierOfTheWorld.PlaySoundAtLocation(Clip, Transform, MaxDistance, Volume, MinDistance, ClipDuration, AddRandomisation, false, .2f);
-                Light.intensity = MinIntensity;
+				Light.enabled = false;
             }
-            else
-            {
-                Light.intensity = MaxIntensity;
+            else {
+				Light.enabled = true;
+				Light.intensity = MaxIntensity;
             }
 
             /*

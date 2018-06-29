@@ -267,9 +267,9 @@ namespace Game.Player.CharacterController
                 inputInfo.sprintButtonDown = (inputInfo.sprintButton && !sprintDownLastFrame) || Input.GetButtonDown("Sprint") && tempPhysicsHandler.currentGravifloor == null;
                 inputInfo.sprintButtonUp = (!inputInfo.sprintButton && sprintDownLastFrame) || Input.GetButtonUp("Sprint") && tempPhysicsHandler.currentGravifloor == null;
 
-                inputInfo.glideButton = (Input.GetAxis("Left Trigger") > .9f) || Input.GetButton("Sprint");
-                inputInfo.glideButtonDown = (inputInfo.glideButton && !glideDownLastFrame) || Input.GetButtonDown("Sprint");
-                inputInfo.glideButtonUp = (!inputInfo.glideButton && glideDownLastFrame) || Input.GetButtonUp("Sprint");
+                inputInfo.glideButton = (Input.GetAxis("Left Trigger") > .9f) || Input.GetButton("Glide");
+                inputInfo.glideButtonDown = (inputInfo.glideButton && !glideDownLastFrame) || Input.GetButtonDown("Glide");
+                inputInfo.glideButtonUp = (!inputInfo.glideButton && glideDownLastFrame) || Input.GetButtonUp("Glide");
 
                 inputInfo.echoButton = Input.GetButton("Interact");
                 inputInfo.echoButtonDown = Input.GetButtonDown("Interact");

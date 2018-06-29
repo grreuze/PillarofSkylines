@@ -22,11 +22,14 @@ namespace Game.LevelElements
         [SerializeField] Animator doorAnimator;
         [SerializeField] string animBoolToOpen;
 
-        //##################################################################
+		[SerializeField] Animator doorAnimator2;
+		[SerializeField] string animBoolToOpen2 = "Open";
 
-        // -- ATTRIBUTES
+		//##################################################################
 
-        int collected;
+		// -- ATTRIBUTES
+
+		int collected;
 
         private Transform MyTransform;
 
@@ -64,7 +67,8 @@ namespace Game.LevelElements
             if (PersistentData.DoorOpened)
             {
                 doorAnimator.SetBool(animBoolToOpen, true);
-            }
+				doorAnimator2.SetBool(animBoolToOpen2, true);
+			}
         }
 
         //##################################################################
@@ -108,8 +112,13 @@ namespace Game.LevelElements
             if (CurrentNeededFireflies == 0)
             {
                 doorAnimator.SetBool(animBoolToOpen, true);
-            }
+				Invoke("OpenDoor", 14);
+			}
         }
+
+		void OpenDoor() {
+			doorAnimator2.SetBool(animBoolToOpen2, true);
+		}
 
         public void OnPlayerExit()
         {

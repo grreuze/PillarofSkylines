@@ -51,7 +51,7 @@ namespace Game.EchoSystem
 
             RenderTexture.ReleaseTemporary(screenCap);
             fx.Play();*/
-            SetFov(targetFov, duration, true);
+            //SetFov(targetFov, duration, true);
         }
 
         IEnumerator _ScreenCap()

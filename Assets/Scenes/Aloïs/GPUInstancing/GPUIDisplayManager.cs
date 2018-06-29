@@ -99,7 +99,7 @@ public class GPUIDisplayManager : MonoBehaviour
 
 	private void LateUpdate()
 	{
-		if (!IsInitialized)
+		if (!IsInitialized || QualitySettings.GetQualityLevel() < 3)
 		{
 			return;
 		}
@@ -109,7 +109,7 @@ public class GPUIDisplayManager : MonoBehaviour
 
 	private void FixedUpdate()
 	{
-		if (!IsInitialized)
+		if (!IsInitialized || QualitySettings.GetQualityLevel() < 3)
 		{
 			return;
 		}

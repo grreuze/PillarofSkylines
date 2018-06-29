@@ -114,8 +114,9 @@ namespace Game.EchoSystem
                 CreateShell();
 
                 EchoCameraEffect.Play();
+				CharController.fxManager.ImpactPlay(50);
 
-                int lastIndex = EchoList.Count - 1;
+				int lastIndex = EchoList.Count - 1;
                 var targetEcho = EchoList[lastIndex];
 
                 SoundifierOfTheWorld.PlaySoundAtLocation(driftClip, GameController.PlayerController.Transform, maxDistance, volumeDrift, minDistance, clipDuration, addRandomisationDrift, false, .2f);
@@ -137,14 +138,16 @@ namespace Game.EchoSystem
                 CreateShell();
 
                 EchoCameraEffect.Play();
+				CharController.fxManager.ImpactPlay(50);
 
-                SoundifierOfTheWorld.PlaySoundAtLocation(driftClip, GameController.PlayerController.Transform, maxDistance, volumeDrift, minDistance, clipDuration, addRandomisationDrift, false, .2f);
+				SoundifierOfTheWorld.PlaySoundAtLocation(driftClip, GameController.PlayerController.Transform, maxDistance, volumeDrift, minDistance, clipDuration, addRandomisationDrift, false, .2f);
 
                 var eventArgs = new EventManager.TeleportPlayerEventArgs(GameController.PlayerController.Transform.position, Waypoint.Position)
                 {
                     UseCameraAngle = Waypoint.UseCameraAngle,
-                    CameraAngle = Waypoint.CameraAngle
-                };
+                    CameraAngle = Waypoint.CameraAngle,
+					Drifting = true
+				};
                 EventManager.SendTeleportPlayerEvent(this, eventArgs);
 
                 if (GameController.PlayerModel.PlayerHasNeedle)

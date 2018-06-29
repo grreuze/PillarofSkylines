@@ -61,7 +61,7 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
     ColorOverlay overlay;
     float defaultStart, defaultEnd;
     private bool IsInitialized = false;
-
+	bool isInside = false;
 
     //##################################################################
 
@@ -119,9 +119,9 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
 
     public void OnPlayerEnter()
     {
-        StopAllCoroutines();
+		isInside = true;
 
-        print("Entered " + name);
+		StopAllCoroutines();
 
         if (editAmbient)
         {
@@ -147,9 +147,9 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
         }
     }
 
-    public void OnPlayerExit()
-    {
-        StopAllCoroutines();
+    public void OnPlayerExit() {
+		isInside = false;
+		StopAllCoroutines();
 
         if (editAmbient)
         {
@@ -174,6 +174,42 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
             StartCoroutine(FadeAudio(0f, false));
         }
     }
+
+	void OnDestroy() {
+		if (isInside) {
+			if (editAmbient)
+				RenderSettings.ambientLight = defaultColor;
+
+			if (editFog) {
+				GradientFog[] fogs = FindObjectsOfType<GradientFog>();
+
+				foreach (GradientFog foggy in fogs) {
+					foggy.gradient = defaultGradient;
+					foggy.startDistance = defaultStart;
+					foggy.endDistance = defaultEnd;
+					foggy.gradientLerp = 0;
+					foggy.GenerateTexture();
+				}
+			}
+
+			if (postProcess)
+				postProcessStack.StopOverridingProfile();
+
+
+			if (editOverlay) {
+				overlay.color = Color.clear;
+				overlay.intensity = 0;
+			}
+
+			if (editAudio) {
+				atmoSource.clip = defaultClip;
+				atmoSource.PlayScheduled(Random.value);
+				atmoSource.volume = defaultVolume;
+			}
+
+		}
+
+	}
 
     public void OnHoverBegin()
     {
