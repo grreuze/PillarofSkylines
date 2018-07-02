@@ -16,13 +16,6 @@ public class PillarStartCutscene : MonoBehaviour {
 
     private GameController GameController;
 
-    private void Start()
-    {
-        eyeAnim.enabled = true;
-        exitAnim.enabled = true;
-        
-    }
-
 	private void OnEnable() {
 		EventManager.SceneChangedEvent += OnSceneFullyLoaded;
 	}
@@ -32,7 +25,11 @@ public class PillarStartCutscene : MonoBehaviour {
 	}
 
 	void OnSceneFullyLoaded(object sender, EventManager.SceneChangedEventArgs args) {
+
 		if (args.HasChangedToPillar) {
+			eyeAnim.enabled = true;
+			exitAnim.enabled = true;
+			GameController = FindObjectOfType<GameController>();
 			StartCoroutine(_WaitForCutscene());
 		}
 	}
