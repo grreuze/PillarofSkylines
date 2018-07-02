@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace Game.UI
 {
     public enum MenuType
@@ -10,5 +9,6 @@ namespace Game.UI
         MainMenu = 3,
         PauseMenu = 4,
         PhotoMode = 5,
+		Credits = 6
     }
 } //end of namespace

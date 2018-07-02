@@ -20,12 +20,13 @@ namespace Game.UI
         [SerializeField] private MainMenuController MainMenuController;
         [SerializeField] private PauseMenuController PauseMenuController;
         [SerializeField] public PhotoModeUIController PhotoModeController;
+        [SerializeField] public EndCreditsController EndCreditsController;
 
-        //###########################################################
+		//###########################################################
 
-        // -- ATTRIBUTES
+		// -- ATTRIBUTES
 
-        public bool IsInitialized { get; private set; }
+		public bool IsInitialized { get; private set; }
         public MenuType CurrentState { get; private set; }
 
         private GameController GameController;
@@ -47,8 +48,9 @@ namespace Game.UI
             UiStates.Add(MenuType.MainMenu, MainMenuController);
             UiStates.Add(MenuType.PauseMenu, PauseMenuController);
             UiStates.Add(MenuType.PhotoMode, PhotoModeController);
+			UiStates.Add(MenuType.Credits, EndCreditsController);
 
-            foreach (var uiState in UiStates.Values)
+			foreach (var uiState in UiStates.Values)
             {
                 uiState.Initialize(GameController, this);
                 uiState.Deactivate();

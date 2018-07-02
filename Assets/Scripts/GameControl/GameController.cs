@@ -814,9 +814,12 @@ namespace Game.GameControl
             IsChangingGameState = true;
             yield return null;
 
+			if (CurrentGameState == GameState.Cutscene && game_state == GameState.Pause)
+				yield break;
+
             CurrentGameState = game_state;
 
-            if (CurrentGameState == GameState.Play)
+            if (CurrentGameState == GameState.Play || CurrentGameState == GameState.Cutscene)
             {
                 IsGamePaused = false;
             }

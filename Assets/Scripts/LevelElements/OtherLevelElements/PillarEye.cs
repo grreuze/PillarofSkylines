@@ -26,6 +26,8 @@ namespace Game.LevelElements
 
         [SerializeField] float lookAtDamp = 0.5f;
 
+		[SerializeField] bool playEndCutscene = false;
+
         private GameController gameController;
         private Transform target;
 
@@ -152,7 +154,6 @@ namespace Game.LevelElements
                 yield return null;
             }
 
-            player.SetHandlingInput(true);
             yield return null;
 
             // BACK TO NORMAL
@@ -184,9 +185,18 @@ namespace Game.LevelElements
 
             eclipsePostFX.LuminosityInfluence = defaultValue;
 
-            gameController.SwitchToOpenWorld();
-            whiteScreen.intensity = 0;
-        }
+			whiteScreen.intensity = 1;
+			yield return null;
+
+			if (playEndCutscene) {
+				gameController.SwitchGameState(GameState.Pause, UI.MenuType.Credits);
+			} else {
+				gameController.PlayerController.CharController.SetHandlingInput(true);
+				gameController.SwitchToOpenWorld();
+			}
+			whiteScreen.intensity = 0;
+
+		}
 
         IEnumerator _WhiteFlash()
         {

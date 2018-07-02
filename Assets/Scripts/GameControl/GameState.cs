@@ -5,6 +5,7 @@
         MainMenu,
         Loading,
         Play,
-        Pause
+        Pause,
+		Cutscene
     }
 } // end of namespace
