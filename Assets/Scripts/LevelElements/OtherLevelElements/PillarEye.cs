@@ -123,7 +123,6 @@ namespace Game.LevelElements
 
         IEnumerator _DestructionSequence()
         {
-            Debug.Log("starting destruction sequence");
             Player.CharacterController.CharController player = gameController.PlayerController.CharController;
             Vector3 eclipseGravity = gameController.EclipseManager.EclipseGravity;
 
@@ -133,12 +132,10 @@ namespace Game.LevelElements
 
             player.SetHandlingInput(false);
 
-            Debug.Log("starting gravity change");
             for (float elapsed = 0; elapsed < changeGravityTime; elapsed+=Time.deltaTime) {
                 player.ChangeGravityDirection(Vector3.Slerp(eclipseGravity, eyeGravity, elapsed / changeGravityTime));
                 yield return null;
             }
-            Debug.Log("ending gravity change, playing animation");
 
             // PLAY ANIMATION
             gameController.PlayerController.InteractionController.PutNeedleInHand();
@@ -148,17 +145,12 @@ namespace Game.LevelElements
             
             StartCoroutine(_WhiteFlash());
 
-            Debug.Log("starting fadeout");
             StartCoroutine(_FadeOut());
 
-
-            Debug.Log("starting destruction ???");
             for (float elapsed = 0; elapsed < destroyTime; elapsed += Time.deltaTime) {
                 renderer.material.SetFloat("_Destruction", Mathf.Pow(elapsed / destroyTime, 2));
                 yield return null;
             }
-
-            Debug.Log("ending destruction sequence");
 
             player.SetHandlingInput(true);
             yield return null;
@@ -192,8 +184,6 @@ namespace Game.LevelElements
 
             eclipsePostFX.LuminosityInfluence = defaultValue;
 
-
-            Debug.Log("ending fadeout");
             gameController.SwitchToOpenWorld();
             whiteScreen.intensity = 0;
         }

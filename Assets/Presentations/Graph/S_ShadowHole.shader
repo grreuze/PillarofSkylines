@@ -2,6 +2,7 @@ Shader "Custom/ShadowHole" {
     Properties {
 		_Color ("Color", Color) = (0,0,0)
         _Distance ("Distance", Float ) = 20
+		_Fade("Fade", Float) = 3
         [HideInInspector]_Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
     }
     SubShader {
@@ -31,6 +32,7 @@ Shader "Custom/ShadowHole" {
             uniform sampler2D _CameraDepthTexture;
 
             uniform float _Distance;
+			uniform float _Fade;
             uniform float4 _Color;
 
             struct VertexInput {
@@ -53,7 +55,7 @@ Shader "Custom/ShadowHole" {
                 float sceneZ = max(0, LinearEyeDepth (UNITY_SAMPLE_DEPTH(tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD(i.projPos)))) - _ProjectionParams.g);
                 float partZ = max(0, i.projPos.z - _ProjectionParams.g);
 
-                fixed4 finalRGBA = fixed4(_Color.rgb, _Color.a * saturate((sceneZ-partZ) / 3 ) * saturate(i.projPos.z/_Distance) );
+                fixed4 finalRGBA = fixed4(_Color.rgb, _Color.a * saturate((sceneZ-partZ) / _Fade ) * saturate(i.projPos.z/_Distance) );
                 UNITY_APPLY_FOG(i.fogCoord, finalRGBA);
                 return finalRGBA;
             }
