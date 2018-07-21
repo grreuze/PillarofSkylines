@@ -57,10 +57,19 @@ namespace Game.LevelElements
 
             if (isActivated)
             {
-                if (interactWithPlayer)
-                {
-                    GetMark();
-                }
+				if (interactWithPlayer) {
+					GetMark();
+				} else if (doImmediateTransition) {
+					eyeAnim.SetBool("marked", true);
+					eyeLight.intensity = 0;
+
+					foreach (MeshRenderer ms in crystalsTransforming)
+						ms.material = crystalOff;
+					foreach (MeshRenderer ms in crystalsImmediate)
+						ms.material = crystalOff;
+					foreach (ParticleSystemRenderer psr in crystalParticles)
+						psr.material = crystalOff;
+				}
             }
 
             return true;
