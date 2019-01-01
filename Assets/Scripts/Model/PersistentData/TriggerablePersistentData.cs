@@ -2,7 +2,8 @@
 
 namespace Game.Model
 {
-    public class TriggerablePersistentData : PersistentData
+	[System.Serializable]
+	public class TriggerablePersistentData : PersistentData
     {
         //###########################################################
 

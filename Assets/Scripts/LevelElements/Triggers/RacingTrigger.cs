@@ -95,7 +95,6 @@ namespace Game.LevelElements
                 if (spline)
                 {
                     racer.position = spline.GetPoint(t);
-                    print("POSITION " + t + " ON SPLINE " + spline.GetPoint(t));
                 }
                 else
                     racer.position = Vector3.Lerp(startPosition, target.position, t);

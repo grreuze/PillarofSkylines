@@ -1,5 +1,6 @@
 ﻿namespace Game.Model
 {
+	[System.Serializable]
     public abstract class PersistentData
     {
         public string UniqueId { get; private set; }

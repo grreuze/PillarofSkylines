@@ -44,7 +44,7 @@ namespace Game.UI
 
         private void OnPillarMarkStateChanged(object sender, Utilities.EventManager.PillarMarkStateChangedEventArgs args)
         {
-            if (order == args.PillarMarkAmount) {
+            if (order <= args.PillarMarkAmount) {
                 SetSprite(args.PillarMarkState);
             }
         }

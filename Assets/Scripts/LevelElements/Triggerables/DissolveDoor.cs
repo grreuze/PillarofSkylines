@@ -42,13 +42,11 @@ namespace Game.LevelElements {
         #region protected methods
 
         protected override void Activate() {
-            Debug.LogFormat("Door \"{0}\": Activate called!", name);
             Dissolve(closedMat, openMat, true);
             myCollider.enabled = false;
         }
 
         protected override void Deactivate() {
-            Debug.LogFormat("Door \"{0}\": Deactivate called!", name);
             Dissolve(openMat, closedMat, false);
         }
 

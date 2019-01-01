@@ -5,7 +5,8 @@ using UnityEngine;
 
 namespace Game.Model
 {
-    public class TombMarkerPersistentData : PersistentData, IWaypoint
+	[System.Serializable]
+	public class TombMarkerPersistentData : PersistentData, IWaypoint
     {
         //###########################################################
 
@@ -22,27 +23,25 @@ namespace Game.Model
         public bool IsWaypoint { get; set; }
         public bool IsTombCollected { get; set; }
 
-        private Vector3 LastPosition;
-        private TombMarker ActiveInstance;
+		float lastPosX, lastPosY, lastPosZ;
 
-        //###########################################################
+		private string IDfromOwner;
 
-        // -- INITIALIZATION
+		//###########################################################
 
-        public TombMarkerPersistentData(string unique_id, Vector3 position) : base(unique_id)
+		// -- INITIALIZATION
+
+		public TombMarkerPersistentData(string unique_id, Vector3 position) : base(unique_id)
         {
-            LastPosition = position;
+			lastPosX = position.x;
+			lastPosY = position.y;
+			lastPosZ = position.z;
         }
 
         //###########################################################
 
         // -- INQUIRIES
-
-        public TombMarker GetActiveInstance()
-        {
-            return ActiveInstance;
-        }
-
+		
         public bool UseCameraAngle { get { return useCameraAngle; } }
         public float CameraAngle { get { return cameraAngle; } }
 
@@ -50,13 +49,17 @@ namespace Game.Model
         {
             get
             {
-                if (ActiveInstance != null)
+                if (IDfromOwner != null)
                 {
-                    return ActiveInstance.Transform.position;
+                    return ActiveInstance().Transform.position;
                 }
-                return LastPosition;
+                return new Vector3(lastPosX, lastPosY, lastPosZ);
             }
         }
+
+		public TombMarker ActiveInstance() {
+			return TombMarker.allMarkers[IDfromOwner];
+		}
 
         //###########################################################
 
@@ -67,18 +70,22 @@ namespace Game.Model
             if (IsWaypoint)
             {
                 IsWaypoint = false;
-                ActiveInstance?.ActivateWaypoint(false);
+				ActiveInstance()?.ActivateWaypoint(false);
             }
         }
 
-        public void SetActiveInstance(TombMarker instance = null)
+        public void SetActiveInstance(Utilities.UniqueId instanceID = null)
         {
-            if (instance == null && ActiveInstance != null)
+            if (instanceID == null && IDfromOwner != null)
             {
-                LastPosition = ActiveInstance.Transform.position;
-            }
+                Vector3 pos = ActiveInstance().Transform.position;
 
-            ActiveInstance = instance;
+				lastPosX = pos.x;
+				lastPosY = pos.y;
+				lastPosZ = pos.z;
+			}
+			if (instanceID)
+				IDfromOwner = instanceID.Id;
         }
     }
 } // end of namespace

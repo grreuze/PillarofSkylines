@@ -3,13 +3,14 @@
 namespace Game.Utilities
 {
     //[RequireComponent(typeof(UniqueId))]
+	[System.Serializable]
     public abstract class UniqueIdOwner : MonoBehaviour
     {
         //========================================================================================
 
         [SerializeField]
         [HideInInspector]
-        private UniqueId uniqueId;
+        protected UniqueId uniqueId;
 
         //========================================================================================
 

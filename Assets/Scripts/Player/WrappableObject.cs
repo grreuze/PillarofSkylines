@@ -24,7 +24,6 @@ namespace Game.Player
 
         public void Initialize(GameController gameController)
         {
-            Debug.Log("WrappableObject: Initialize");
 
             this.gameController = gameController;
             myTransform = transform;

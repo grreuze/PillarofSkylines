@@ -122,8 +122,6 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
 		StopAllCoroutines();
 		isInside = 1;
 
-		print("Enter " + name);
-
         if (editAmbient) {
             StartCoroutine(FadeAmbient(color));
         }
@@ -148,8 +146,6 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
     public void OnPlayerExit() {
 		StopAllCoroutines();
 		isInside = 0;
-
-		print("Exit " + name);
 
 		if (editAmbient)
         {
@@ -177,7 +173,7 @@ public class AmbientBox : MonoBehaviour, IInteractable, IWorldObject
 
 	void OnDestroy() {
 		if (isInside > 0) {
-			print("Destroy " + name);
+			//print("Destroy " + name);
 
 			if (editAmbient)
 				RenderSettings.ambientLight = defaultColor;

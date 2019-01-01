@@ -27,6 +27,7 @@ namespace Game.LevelElements
         protected override void OnPickedUp()
         {
             GameController.PlayerModel.SetAbilityState(ability, AbilityState.active);
+			GameController.PlayerModel.Save();
         }
 
         //##################################################################

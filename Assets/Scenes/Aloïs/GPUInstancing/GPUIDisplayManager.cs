@@ -21,6 +21,7 @@ public class GPUIDisplayManager : MonoBehaviour
 
 	private GameController GameController;
 	private bool IsInitialized;
+	public bool IsActivated;
 
 	private Dictionary<int, List<List<Matrix4x4>>> MatrixGroupDictionary = new Dictionary<int, List<List<Matrix4x4>>>();
 	private List<int> MatrixGroupIdList = new List<int>();
@@ -51,6 +52,7 @@ public class GPUIDisplayManager : MonoBehaviour
 		WestMap = _mapHolder.westTex;
 
 		IsInitialized = true;
+		IsActivated = QualitySettings.GetQualityLevel() >= 3;
 	}
 
 	//##################################################################
@@ -62,8 +64,10 @@ public class GPUIDisplayManager : MonoBehaviour
 	/// </summary>
 	/// <param name="matrix_list"></param>
 	/// <param name="matrix_group_id"></param>
-	public void AddStuffToDraw(List<Matrix4x4> matrix_list, int matrix_group_id)
-	{
+	public void AddStuffToDraw(List<Matrix4x4> matrix_list, int matrix_group_id) {
+		if (!IsInitialized || !IsActivated) {
+			return;
+		}
 		if (!MatrixGroupIdList.Contains(matrix_group_id) && matrix_list.Count > 0)
 		{
 			MatrixGroupDictionary.Add(matrix_group_id, new List<List<Matrix4x4>>());
@@ -91,15 +95,27 @@ public class GPUIDisplayManager : MonoBehaviour
 	/// Removes stuff to draw.
 	/// </summary>
 	/// <param name="matrix_group_id"></param>
-	public void RemoveStuffToDraw(int matrix_group_id)
-	{
+	public void RemoveStuffToDraw(int matrix_group_id) {
+		if (!IsInitialized || !IsActivated) {
+			return;
+		}
 		MatrixGroupDictionary.Remove(matrix_group_id);
 		MatrixGroupIdList.Remove(matrix_group_id);
 	}
 
+	public void Activate(bool newState) {
+		IsActivated = newState;
+
+		if (!IsActivated) {
+
+			MatrixGroupDictionary.Clear();
+			MatrixGroupIdList.Clear();
+		}
+	}
+
 	private void LateUpdate()
 	{
-		if (!IsInitialized || QualitySettings.GetQualityLevel() < 3)
+		if (!IsInitialized || !IsActivated)
 		{
 			return;
 		}
@@ -109,7 +125,7 @@ public class GPUIDisplayManager : MonoBehaviour
 
 	private void FixedUpdate()
 	{
-		if (!IsInitialized || QualitySettings.GetQualityLevel() < 3)
+		if (!IsInitialized || !IsActivated)
 		{
 			return;
 		}

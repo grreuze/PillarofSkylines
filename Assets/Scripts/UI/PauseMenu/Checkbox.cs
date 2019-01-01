@@ -9,7 +9,7 @@ namespace Game.UI.PauseMenu
 
         Image img;
 
-        private void Start()
+        private void Awake()
         {
             img = GetComponent<Image>();
         }

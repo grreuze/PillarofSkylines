@@ -103,7 +103,8 @@ namespace Game.LevelElements
             model.SetAbilityState(model.LevelData.GetPillarRewardAbility(gameController.ActivePillarId), Model.AbilityState.active);
             model.SetPillarState(gameController.ActivePillarId, Model.PillarState.Destroyed);
 
-            // ok change here.
+			// ok change here.
+			model.Save();
 
             StartCoroutine(_DestructionSequence());
         }

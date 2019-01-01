@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace Game.Model
 {
-    public class TutorialExitPersistentData : PersistentData
+	[System.Serializable]
+	public class TutorialExitPersistentData : PersistentData
     {
         public bool IsOpen { get; set; }
 

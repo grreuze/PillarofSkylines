@@ -2,12 +2,28 @@
 using Game.Utilities;
 using Game.World;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Game.Model
 {
+	[Serializable]
+	class PlayerData {
+		public Dictionary<AbilityType, AbilityState> AbilityStateDictionary;
+		public Dictionary<PillarMarkId, PillarMarkState> PillarMarkStateDictionary;
+		public Dictionary<PillarId, PillarState> PillarStateDictionary;
+
+		public Dictionary<string, PersistentData> PersistentDataDictionary = new Dictionary<string, PersistentData>();
+		public string[] FireflyList;
+		public int GatheredFireflyCount;
+
+		public float posX, posY, posZ;
+		public float rotX, rotY, rotZ, rotW;
+	}
+
     /// <summary>
     /// This class stores data about the player: favours, abilities, stats, ...
     /// </summary>
@@ -21,6 +37,7 @@ namespace Game.Model
         public LevelData LevelData { get; private set; }
 
         public bool PlayerHasNeedle { get; set; }
+		public bool ContinuedGame = false;
 
         private Dictionary<AbilityType, AbilityState> AbilityStateDictionary;
         private Dictionary<PillarMarkId, PillarMarkState> PillarMarkStateDictionary;
@@ -30,49 +47,173 @@ namespace Game.Model
         private List<Firefly> FireflyList = new List<Firefly>();
         private int GatheredFireflyCount;
 
-        //###########################################################
+		private GameControl.GameController GameController;
 
-        // -- INITIALIZATION
+		public Vector3 SpawnPosition;
+		public Quaternion SpawnRotation;
 
-        public PlayerModel()
+		//###########################################################
+
+		// -- INITIALIZATION
+
+		public PlayerModel(GameControl.GameController gc)
         {
-            AbilityData = Resources.Load<AbilityData>("ScriptableObjects/AbilityData");
+			GameController = gc;
+
+			AbilityData = Resources.Load<AbilityData>("ScriptableObjects/AbilityData");
             LevelData = Resources.Load<LevelData>("ScriptableObjects/LevelData");
 
-            AbilityStateDictionary = new Dictionary<AbilityType, AbilityState>();
-            foreach (var ability in Enum.GetValues(typeof(AbilityType)).Cast<AbilityType>())
-            {
-                AbilityStateDictionary.Add(ability, AbilityState.inactive);
-            }
+			if (File.Exists(Application.persistentDataPath + dataFile)) {
+				Load();
 
-            PillarMarkStateDictionary = new Dictionary<PillarMarkId, PillarMarkState>();
-            foreach (var pillar_mark in Enum.GetValues(typeof(PillarMarkId)).Cast<PillarMarkId>())
-            {
-                PillarMarkStateDictionary.Add(pillar_mark, PillarMarkState.inactive);
-            }
+			} else {
+				Init();
+			}
+		}
 
-            PillarStateDictionary = new Dictionary<PillarId, PillarState>();
-            foreach (var pillar_id in Enum.GetValues(typeof(PillarId)).Cast<PillarId>())
-            {
-                PillarStateDictionary.Add(pillar_id, PillarState.Locked);
-            }
+		void Init() {
+			AbilityStateDictionary = new Dictionary<AbilityType, AbilityState>();
+			foreach (var ability in Enum.GetValues(typeof(AbilityType)).Cast<AbilityType>()) {
+				AbilityStateDictionary.Add(ability, AbilityState.inactive);
+			}
 
-            if (Application.isEditor)
-            {
-                SetAbilityState(AbilityType.Echo, AbilityState.active);
-            }
-        }
+			PillarMarkStateDictionary = new Dictionary<PillarMarkId, PillarMarkState>();
+			foreach (var pillar_mark in Enum.GetValues(typeof(PillarMarkId)).Cast<PillarMarkId>()) {
+				PillarMarkStateDictionary.Add(pillar_mark, PillarMarkState.inactive);
+			}
 
-        //###########################################################
+			PillarStateDictionary = new Dictionary<PillarId, PillarState>();
+			foreach (var pillar_id in Enum.GetValues(typeof(PillarId)).Cast<PillarId>()) {
+				PillarStateDictionary.Add(pillar_id, PillarState.Locked);
+			}
 
-        // -- INQUIRIES
+			if (Application.isEditor) {
+				SetAbilityState(AbilityType.Echo, AbilityState.active);
+			}
 
-        /// <summary>
-        /// Returns the state of the ability.
-        /// </summary>
-        /// <param name="ability_type"></param>
-        /// <returns></returns>
-        public AbilityState GetAbilityState(AbilityType ability_type)
+			PersistentDataDictionary = new Dictionary<string, PersistentData>();
+			FireflyList = new List<Firefly>();
+			GatheredFireflyCount = 0;
+			ContinuedGame = false;
+			GameController.PlayIntroCutscene = true;
+		}
+
+		//###########################################################
+
+		// -- SAVE SYSTEM
+
+		string dataFile = "/playerModel.dat";
+
+		public void DeleteSave() {
+			if (File.Exists(Application.persistentDataPath + dataFile))
+				File.Delete(Application.persistentDataPath + dataFile);
+			
+			Init();
+		}
+
+		public void Save() {
+			BinaryFormatter bf = new BinaryFormatter();
+			FileStream file = File.Create(Application.persistentDataPath + dataFile);
+
+			PlayerData data = new PlayerData();
+
+			// Save Player
+
+			if (GameController.IsOpenWorldLoaded) {
+				data.posX = GameController.PlayerController.Transform.position.x;
+				data.posY = GameController.PlayerController.Transform.position.y;
+				data.posZ = GameController.PlayerController.Transform.position.z;
+
+				data.rotX = GameController.PlayerController.Transform.rotation.x;
+				data.rotY = GameController.PlayerController.Transform.rotation.y;
+				data.rotZ = GameController.PlayerController.Transform.rotation.z;
+				data.rotW = GameController.PlayerController.Transform.rotation.w;
+			} else {//else we use the pillar entrance position
+
+				Vector3 pos = GameController.SpawnPointManager.GetPillarExitPoint(GameController.ActivePillarId, PillarVariant.Intact);
+				Quaternion rot = GameController.SpawnPointManager.GetPillarExitOrientation(GameController.ActivePillarId, PillarVariant.Intact);
+
+				data.posX = pos.x;
+				data.posY = pos.y;
+				data.posZ = pos.z;
+
+				data.rotX = rot.x;
+				data.rotY = rot.y;
+				data.rotZ = rot.z;
+				data.rotW = rot.w;
+			}
+
+			// Save Variables
+			data.AbilityStateDictionary = AbilityStateDictionary;
+			data.PillarMarkStateDictionary = PillarMarkStateDictionary;
+			data.PillarStateDictionary = PillarStateDictionary;
+
+			data.PersistentDataDictionary = PersistentDataDictionary;
+
+			// Save Fireflies
+			data.FireflyList = new string[FireflyList.Count];
+			for (int i = 0; i < FireflyList.Count; i++) {
+				data.FireflyList[i] = FireflyList[i].ownerID;
+			}
+
+			data.GatheredFireflyCount = GatheredFireflyCount;
+
+			//
+			
+			bf.Serialize(file, data);
+			file.Close();
+		}
+
+		public void Load() {
+			BinaryFormatter bf = new BinaryFormatter();
+			FileStream file = File.Open(Application.persistentDataPath + dataFile, FileMode.Open);
+			PlayerData data = (PlayerData)bf.Deserialize(file);
+			file.Close();
+
+			//Load Variables here
+			AbilityStateDictionary = data.AbilityStateDictionary;
+			PillarMarkStateDictionary = data.PillarMarkStateDictionary;
+			PillarStateDictionary = data.PillarStateDictionary;
+
+			PersistentDataDictionary = data.PersistentDataDictionary;
+
+			// Load Fireflies
+			foreach (var fireflyID in data.FireflyList) {
+
+				Firefly firefly = UnityEngine.Object.Instantiate(GameController.FireflyPrefab).GetComponent<Firefly>();
+
+				firefly.SetParent(GameController.PlayerController.Transform, true, Firefly.FireflyState.Following);
+				firefly.Transform.localPosition = Vector3.zero;
+				firefly.SetID(fireflyID);
+
+				firefly.SetFollowOffset();
+
+				FireflyList.Add(firefly);
+			}
+
+			GatheredFireflyCount = data.GatheredFireflyCount;
+
+			ContinuedGame = true;
+
+			SpawnPosition = new Vector3(data.posX, data.posY, data.posZ);
+			SpawnRotation = new Quaternion(data.rotX, data.rotY, data.rotZ, data.rotW);
+
+			GameController.PlayIntroCutscene = false;
+			
+			// Place the player at the last activated waypoint
+		}
+
+
+		//###########################################################
+
+		// -- INQUIRIES
+
+		/// <summary>
+		/// Returns the state of the ability.
+		/// </summary>
+		/// <param name="ability_type"></param>
+		/// <returns></returns>
+		public AbilityState GetAbilityState(AbilityType ability_type)
         {
             return AbilityStateDictionary[ability_type];
         }
@@ -229,7 +370,7 @@ namespace Game.Model
                 PillarMarkStateDictionary[pillar_mark_id] = pillar_mark_state;
 
                 EventManager.SendPillarMarkStateChangedEvent(this, new EventManager.PillarMarkStateChangedEventArgs(pillar_mark_id, pillar_mark_state, GetActivePillarMarkCount()));
-            }
+			}
         }
 
         /// <summary>
@@ -244,7 +385,7 @@ namespace Game.Model
                 PillarStateDictionary[pillar_id] = pillar_state;
 
                 EventManager.SendPillarStateChangedEvent(this, new EventManager.PillarStateChangedEventArgs(pillar_id, pillar_state));
-            }
+			}
         }
 
         /// <summary>
@@ -288,7 +429,9 @@ namespace Game.Model
             {
                 GatheredFireflyCount++;
                 FireflyList.Add(firefly);
-            }
+
+				Save();
+			}
         }
 
         /// <summary>
@@ -305,7 +448,9 @@ namespace Game.Model
             var result = FireflyList[0];
             FireflyList.RemoveAt(0);
 
-            return result;
+			Save();
+
+			return result;
         }
     }
 } //end of namespace

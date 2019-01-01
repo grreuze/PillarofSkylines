@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Game
 {
+	[System.Serializable]
     public class Firefly : MonoBehaviour
     {
         public enum FireflyState
@@ -29,8 +30,12 @@ namespace Game
         [SerializeField] private float MinRadius = 0.7f;
         [SerializeField] private float DanceDuration = 0.8f;
         [SerializeField] private float DanceAngle = 1080; // 360 * 3
-        [SerializeField] private Vector3 IdleScales = new Vector3(1, 0.3f, 0.3f);
-        [SerializeField] private float MinIntensity = 0.5f;
+
+		[SerializeField] private float IdleScalesX = 1;
+		[SerializeField] private float IdleScalesY = 0.3f;
+		[SerializeField] private float IdleScalesZ = 0.3f;
+
+		[SerializeField] private float MinIntensity = 0.5f;
         [SerializeField] private float MaxIntensity = 2f;
 
         [Header("Sound")]
@@ -52,6 +57,9 @@ namespace Game
 
         private Vector3 FollowOffset;
         private List<ParticleSystem> ParticleSystemList;
+
+		[HideInInspector]
+		public string ownerID;
 
         //########################################################################
 
@@ -75,9 +83,13 @@ namespace Game
 
         public Transform Transform { get { if (MyTransform == null) { MyTransform = this.transform; } return MyTransform; } }
 
-        //########################################################################
+		//########################################################################
 
-        // -- OPERATIONS
+		// -- OPERATIONS
+
+		public void SetID(string ID) {
+			ownerID = ID;
+		}
 
         /// <summary>
         /// Sets the parent and mode of the Firefly.
@@ -95,7 +107,7 @@ namespace Game
             /*
              * State dependent changes
              */
-            if (new_state == FireflyState.Following)
+            if (new_state == FireflyState.Following && FindObjectOfType<GameControl.GameController>().IsOpenWorldLoaded)
             {
                 Instantiate(Feedback, Transform.position, Transform.rotation).Play();
                 SoundifierOfTheWorld.PlaySoundAtLocation(Clip, Transform, MaxDistance, Volume, MinDistance, ClipDuration, AddRandomisation, false, .2f);
@@ -134,9 +146,9 @@ namespace Game
                 case FireflyState.Idle:
                     {
                         Transform.position = ParentTransform.position
-                                            + (Vector3.right * Mathf.Sin(Time.time / 2 * Speed) * IdleScales.x
-                                            - Vector3.up * Mathf.Sin(Time.time * Speed) * IdleScales.y
-                                            - Vector3.forward * Mathf.Sin(Time.time * Speed) * IdleScales.z);
+                                            + (Vector3.right * Mathf.Sin(Time.time / 2 * Speed) * IdleScalesX
+                                            - Vector3.up * Mathf.Sin(Time.time * Speed) * IdleScalesY
+                                            - Vector3.forward * Mathf.Sin(Time.time * Speed) * IdleScalesZ);
                         break;
                     }
                 case FireflyState.Following:
@@ -196,7 +208,7 @@ namespace Game
             CurrentState = exit_state;
         }
 
-        private void SetFollowOffset()
+        public void SetFollowOffset()
         {
             FollowOffset.x = Random.value > 0.5f ? Random.Range(-MaxRadius, -MinRadius) : Random.Range(MinRadius, MaxRadius);
             FollowOffset.y = Random.Range(0.5f, 1.5f);

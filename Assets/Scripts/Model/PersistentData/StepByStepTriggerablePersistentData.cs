@@ -1,7 +1,7 @@
 ﻿using Game.LevelElements;
 
 namespace Game.Model
-{
+{[System.Serializable]
     public class StepByStepTriggerablePersistentData : TriggerablePersistentData
     {
         //###########################################################

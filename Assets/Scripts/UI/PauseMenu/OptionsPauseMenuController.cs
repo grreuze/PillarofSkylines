@@ -14,13 +14,15 @@ namespace Game.UI.PauseMenu
 
         [SerializeField] private Button StartingButton;
 
-        [SerializeField] Checkbox invertXBox, invertYBox;
+        [SerializeField] Checkbox invertXBox, invertYBox, grassBox;
 
 
         public bool IsActive { get; private set; }
 
         private PlayerModel Model;
         private PauseMenuController PauseMenuController;
+
+		GPUIDisplayManager GPUI;
 
         PoS_Camera cam;
 
@@ -32,13 +34,16 @@ namespace Game.UI.PauseMenu
         {
             Model = model;
             PauseMenuController = pause_menu_controller;
-        }
+		}
 
         public void Activate()
         {
             this.gameObject.SetActive(true);
 
-            EventSystem.current.SetSelectedGameObject(null);
+			GPUI = PauseMenuController.GameController.CameraController.GPUIDisplayManager;
+			grassBox.SetState(GPUI.IsActivated);
+
+			EventSystem.current.SetSelectedGameObject(null);
             StartingButton.Select();
 
             if (!cam)
@@ -77,6 +82,11 @@ namespace Game.UI.PauseMenu
 
             invertYBox.SetState(cam.invertAxis.y);
         }
+
+		public void OnGrassPressed() {
+			GPUI.Activate(!GPUI.IsActivated);
+			grassBox.SetState(GPUI.IsActivated);
+		}
 
     }
 }

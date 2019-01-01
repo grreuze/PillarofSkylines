@@ -5,7 +5,8 @@ using UnityEngine;
 
 namespace Game.Model
 {
-    public class UltimatePlatformPersistentData : TriggerablePersistentData
+	[System.Serializable]
+	public class UltimatePlatformPersistentData : TriggerablePersistentData
     {
         public UltimatePlatform Master { get; set; }
         public bool MasterSetOnce { get; set; }

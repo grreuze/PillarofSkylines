@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace Game.Model
 {
-    public class NeedleSlotPersistentData : PersistentData
+	[System.Serializable]
+	public class NeedleSlotPersistentData : PersistentData
     {
         private bool containsNeedle;
 

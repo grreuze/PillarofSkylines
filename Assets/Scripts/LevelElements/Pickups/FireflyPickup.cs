@@ -15,6 +15,8 @@ namespace Game.LevelElements
         [Header("FireflyPickup")]
         [SerializeField] private GameObject FireflyPrefab;
 
+		public static GameObject FireflyPrefab_;
+
         //##################################################################
 
         // -- ATTRIBUTES
@@ -30,11 +32,16 @@ namespace Game.LevelElements
         public override string OnPickedUpDescription { get { return ""; } }
         public override Sprite OnPickedUpIcon { get { return null; } }
 
-        //##################################################################
+		//##################################################################
 
-        // -- OPERATIONS
+		// -- OPERATIONS
 
-        protected override void OnPickupEnabled()
+		private void Awake() {
+			if (!FireflyPrefab_)
+				FireflyPrefab_ = FireflyPrefab;
+		}
+
+		protected override void OnPickupEnabled()
         {
             base.OnPickupEnabled();
 
@@ -42,6 +49,7 @@ namespace Game.LevelElements
             {
                 Firefly = Instantiate(FireflyPrefab, this.transform.position, this.transform.rotation).GetComponent<Firefly>();
                 Firefly.SetParent(this.transform, false, Firefly.FireflyState.Idle);
+				Firefly.SetID(UniqueId);
             }
         }
 
@@ -50,7 +58,7 @@ namespace Game.LevelElements
             Firefly.SetParent(GameController.PlayerController.Transform, true, Firefly.FireflyState.Following);
             GameController.PlayerModel.PushFirefly(Firefly);
             Firefly = null;
-        }
+		}
 
 
 

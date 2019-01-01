@@ -22,18 +22,19 @@ namespace Game.GameControl
         // -- CONSTANTS
 
         [Header("General")]
-        [SerializeField] private bool PlayIntroCutscene = false;
+        [SerializeField] public bool PlayIntroCutscene = false;
 
         [Header("Lite")]
         [SerializeField] private bool IsLiteVersion = false;
         [SerializeField] private GameObject UiPrefab;
+        [SerializeField] public GameObject FireflyPrefab;
 
-        //###############################################################
+		//###############################################################
 
-        // -- ATTRIBUTES
+		// -- ATTRIBUTES
 
-        // permanent refs
-        public PlayerModel PlayerModel { get; private set; }
+		// permanent refs
+		public PlayerModel PlayerModel { get; private set; }
         public CutsceneManager CutsceneManager { get; private set; }
         public EchoManager EchoManager { get; private set; }
         public EclipseManager EclipseManager { get; private set; }
@@ -94,7 +95,10 @@ namespace Game.GameControl
         {
             IsGamePaused = true;
 
-            PlayerModel = new PlayerModel();
+			PlayerController = FindObjectOfType<PlayerController>();
+			CameraController = FindObjectOfType<CameraController>();
+
+			PlayerModel = new PlayerModel(this);
             CutsceneManager = new CutsceneManager(this);
 
             /*
@@ -113,8 +117,6 @@ namespace Game.GameControl
             EchoManager = GetComponentInChildren<EchoManager>();
             EclipseManager = GetComponentInChildren<EclipseManager>();
 
-            PlayerController = FindObjectOfType<PlayerController>();
-            CameraController = FindObjectOfType<CameraController>();
 
             /*
              * initializing
@@ -313,6 +315,8 @@ namespace Game.GameControl
         /// </summary>
         public void ExitGame()
         {
+			PlayerModel.Save();
+
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -372,10 +376,10 @@ namespace Game.GameControl
             {
                 SwitchGameState(GameState.Pause, MenuType.PauseMenu);
             }
-            else
+            /*else
             {
                 Debug.LogError("GameController: OpenPauseMenu: called but game is not in Play state!");
-            }
+            }*/
         }
 
         /// <summary>
@@ -450,10 +454,13 @@ namespace Game.GameControl
             Quaternion spawn_rotation;
             bool use_initial_spawn_point;
 
-            /*
+			// update pillar doors, plar marks and UI marks
+			EventManager.SendPillarMarkStateChangedEvent(this, new EventManager.PillarMarkStateChangedEventArgs(PillarMarkId.PillarMark_01, PillarMarkState.active, PlayerModel.GetActivePillarMarkCount()));
+
+			/*
              * Pausing game
              */
-            EventManager.SendPreSceneChangeEvent(this, new EventManager.PreSceneChangeEventArgs(false));
+			EventManager.SendPreSceneChangeEvent(this, new EventManager.PreSceneChangeEventArgs(false));
             SwitchGameState(GameState.Loading, MenuType.LoadingScreen);
             yield return null;
 
@@ -482,7 +489,7 @@ namespace Game.GameControl
             var first_teleport_player_event_args = new EventManager.TeleportPlayerEventArgs(
                 PlayerController.Transform.position,
                 new Vector3(10000, 10000, 10000))
-            {
+			{
                 IsNewScene = true
             };
 
@@ -498,10 +505,14 @@ namespace Game.GameControl
                 yield return null;
             }
 
-            /*
+			/*
              * Activating Open World scene
              */
-            if (use_initial_spawn_point)
+			if (PlayerModel.ContinuedGame) {
+				spawn_position = PlayerModel.SpawnPosition;
+				spawn_rotation = PlayerModel.SpawnRotation;
+
+			} else if (use_initial_spawn_point)
             {
                 spawn_position = SpawnPointManager.GetInitialSpawnPoint();
                 spawn_rotation = SpawnPointManager.GetInitialSpawnOrientation();

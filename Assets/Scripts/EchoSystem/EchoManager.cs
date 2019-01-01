@@ -350,16 +350,16 @@ namespace Game.EchoSystem
 
         private void OnPreSceneChangeEvent(object sender, EventManager.PreSceneChangeEventArgs args)
         {
-            Debug.LogFormat("EchoManager: OnPreSceneChangedEventHandler: echo count = {0}", EchoList.Count);
+            //Debug.LogFormat("EchoManager: OnPreSceneChangedEventHandler: echo count = {0}", EchoList.Count);
 
             IsEclipseActive = false;
 
             for (int i = 0; i < EchoList.Count; i++)
             {
-                if (EchoList[i] == null)
+                /*if (EchoList[i] == null)
                 {
                     Debug.Log("echo is null");
-                }
+                }*/
                 Destroy(EchoList[i].gameObject);
             }
 

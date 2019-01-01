@@ -26,6 +26,7 @@ namespace Game.LevelElements
         protected override void OnPickedUp()
         {
             GameController.PlayerModel.SetPillarMarkState(PillarMarkId, PillarMarkState.active);
+			GameController.PlayerModel.Save();
         }
 
         //##################################################################

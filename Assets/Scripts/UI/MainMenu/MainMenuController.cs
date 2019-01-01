@@ -12,11 +12,11 @@ namespace Game.UI
     public class MainMenuController : MonoBehaviour, IUiMenu
     {
         //##################################################################
-        
+
         // -- CONSTANTS
 
-        [SerializeField] private Button playButton;
-        [SerializeField] private VideoPlayer VideoPlayer;
+        [SerializeField] private CanvasGroup buttonsGroup;
+        [SerializeField] private Button newGameButton, continueButton;
 
         //##################################################################
 
@@ -37,6 +37,7 @@ namespace Game.UI
         
         void IUiMenu.Activate()
         {
+
             if (IsActive)
             {
                 return;
@@ -45,27 +46,23 @@ namespace Game.UI
             IsActive = true;
             gameObject.SetActive(true);
 
-            playButton.Select();
-            VideoPlayer.Play();
-        }
-
-        void Start()
-        {
             StartCoroutine(_AppearLeBouton());
+
+            if (GameController.PlayerModel.ContinuedGame)
+				continueButton.Select();
+			else {
+				continueButton.gameObject.SetActive(false);
+				newGameButton.Select();
+			}
         }
 
         IEnumerator _AppearLeBouton()
         {
-            TextMeshProUGUI txt = playButton.GetComponent<TextMeshProUGUI>();
-            Color color = txt.color;
-            
-            float duration = 7.0f;
+            float duration = 10.0f;
 
             for(float elapsed = 0f; elapsed < duration; elapsed += Time.unscaledDeltaTime)
             {
-
-                color.a = elapsed / duration;
-                txt.color = color;
+                buttonsGroup.alpha = elapsed / duration;
                 yield return null;
             }
         }
@@ -76,7 +73,6 @@ namespace Game.UI
             gameObject.SetActive(false);
 
             EventSystem.current.SetSelectedGameObject(null);
-            VideoPlayer.Stop();
         }
 
         //##################################################################
@@ -87,8 +83,17 @@ namespace Game.UI
         {
             if (Input.GetButtonDown("Interact"))
             {
-                GameController.StartGame();
+				StartGame();
             }
         }
+
+		public void StartGame() {
+			GameController.StartGame();
+		}
+
+		public void NewGame() {
+			GameController.PlayerModel.DeleteSave();
+			GameController.StartGame();
+		}
     }
 } //end of namespace

@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Game.Model
 {
+	[System.Serializable]
     public class PickupPersistentData : PersistentData
     {
         private bool isPickedUp;

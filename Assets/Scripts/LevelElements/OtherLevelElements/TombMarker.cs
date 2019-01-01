@@ -2,6 +2,7 @@
 using Game.GameControl;
 using Game.Model;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Game.LevelElements
 {
@@ -19,6 +20,9 @@ namespace Game.LevelElements
         [SerializeField, HideInInspector] private string tombID;
 
         public Transform Transform { get { return transform; } }
+
+		[HideInInspector]
+		public static Dictionary<string, TombMarker> allMarkers = new Dictionary<string, TombMarker>();
 
         //###########################################################
 
@@ -38,7 +42,10 @@ namespace Game.LevelElements
             {
                 OnEnable();
             }
-        }
+
+			if (!allMarkers.ContainsKey(UniqueId))
+				allMarkers.Add(UniqueId, this);
+		}
 
         /// <summary>
         /// Called when the game object is activated.
@@ -62,7 +69,7 @@ namespace Game.LevelElements
             }
 
             ActivateWaypoint(PersistentData.IsWaypoint);
-            PersistentData.SetActiveInstance(this);
+            PersistentData.SetActiveInstance(uniqueId);
         }
 
         /// <summary>
@@ -78,9 +85,9 @@ namespace Game.LevelElements
             Utilities.EventManager.PickupCollectedEvent -= OnPickupCollectedEvent;
         }
 
-        //###########################################################
+		//###########################################################
 
-        // -- INQUIRIES
+		// -- INQUIRIES
 
         /// <summary>
         /// Used to check whether the player can interact with this object.
@@ -100,7 +107,8 @@ namespace Game.LevelElements
         public void OnPlayerEnter()
         {
             ActivateWaypoint(true);
-        }
+			GameController.PlayerModel.Save();
+		}
 
         /// <summary>
         /// Called when the player leaves the trigger collider.

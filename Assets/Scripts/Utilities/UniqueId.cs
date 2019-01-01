@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Game.Utilities
 {
+	[Serializable]
     [ExecuteInEditMode]
     public class UniqueId : MonoBehaviour
     {
@@ -55,9 +56,6 @@ namespace Game.Utilities
         {
 
         }
-#endif
-
-#if UNITY_EDITOR
         private void Update()
         {
             if (!Application.isPlaying)
@@ -65,9 +63,6 @@ namespace Game.Utilities
                 SetId();
             }
         }
-#endif
-
-#if UNITY_EDITOR
         private void OnDestroy()
         {
             if (!Application.isPlaying)

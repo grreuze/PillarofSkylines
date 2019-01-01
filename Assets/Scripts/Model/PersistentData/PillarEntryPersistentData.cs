@@ -1,6 +1,7 @@
 ﻿namespace Game.Model
 {
-    public class PillarEntryPersistentData : PersistentData
+	[System.Serializable]
+	public class PillarEntryPersistentData : PersistentData
     {
         public bool IsPillarUnlocked { get; set; }
         public bool IsDoorUnlocked { get; set; }

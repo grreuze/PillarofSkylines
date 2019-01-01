@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game.Model
-{
+{[System.Serializable]
     public class FireflyDoorPersistentData : PersistentData
     {
         public int CollectedFirefliesCount { get; set; }

@@ -201,10 +201,10 @@ namespace Game.LevelElements
             {
                 _fx.GlyphOn();
             }
-            else
+            /*else
             {
                 Debug.LogError ("whoopsie, " + transform.name + " isn't attached to a glyph, is it ?");
-            }
+            }*/
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace Game.LevelElements
         {
             if (definitiveActivation)
             {
-                Debug.LogErrorFormat("TriggerBox {0}: DeactivateTriggerBoxCoroutine: definitiveActivation=true!", this.name);
+                //Debug.LogErrorFormat("TriggerBox {0}: DeactivateTriggerBoxCoroutine: definitiveActivation=true!", this.name);
                 return;
             }
 
@@ -245,10 +245,10 @@ namespace Game.LevelElements
             {
                 _fx.GlyphOff();
             }
-            else
+            /*else
             {
                 Debug.LogWarning("whoopsie, " + transform.name + " isn't attached to a glyph, is it ?");
-            }
+            }*/
         }
 
         ///// <summary>
